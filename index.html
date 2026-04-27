@@ -1443,21 +1443,21 @@
                         <div class="p-10 md:p-16 lg:p-24 bg-white flex flex-col justify-center">
                             <h2 class="text-5xl font-bold text-forest-green mb-10 tracking-tighter">Plan Your Journey
                             </h2>
-                            <form class="space-y-8">
+                            <form id="contact-form" class="space-y-8">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div
                                         class="border-b border-gray-200 pb-2 transition-all focus-within:border-orange-500">
                                         <label
                                             class="text-[10px] font-bold uppercase text-gray-500 mb-2 block tracking-[0.2em]">Full
                                             Name</label>
-                                        <input type="text" placeholder="Your Name"
+                                        <input type="text" id="contact-name" placeholder="Your Name"
                                             class="w-full p-2 outline-none text-sm font-semibold text-forest-green bg-transparent placeholder:text-gray-300">
                                     </div>
                                     <div
                                         class="border-b border-gray-200 pb-2 transition-all focus-within:border-orange-500">
                                         <label
                                             class="text-[10px] font-bold uppercase text-gray-500 mb-2 block tracking-[0.2em]">Phone</label>
-                                        <input type="tel" placeholder="+91 XXXX"
+                                        <input type="tel" id="contact-phone" placeholder="+91 XXXX"
                                             class="w-full p-2 outline-none text-sm font-semibold text-forest-green bg-transparent placeholder:text-gray-300">
                                     </div>
                                 </div>
@@ -1466,10 +1466,10 @@
                                     <label
                                         class="text-[10px] font-bold uppercase text-gray-500 mb-2 block tracking-[0.2em]">Your
                                         Message</label>
-                                    <textarea placeholder="How can we help you plan your spiritual escape?" rows="3"
+                                    <textarea id="contact-message" placeholder="How can we help you plan your spiritual escape?" rows="3"
                                         class="w-full p-2 outline-none text-sm font-semibold text-forest-green resize-none bg-transparent placeholder:text-gray-300"></textarea>
                                 </div>
-                                <button type="button"
+                                <button type="button" onclick="sendToWhatsApp()"
                                     class="w-full bg-forest-green text-white font-bold py-6 rounded-2xl hover:bg-black transition-all tracking-[0.3em] uppercase text-[10px]">Request
                                     Callback</button>
                             </form>
@@ -1677,6 +1677,23 @@
                 document.body.style.overflow = '';
             });
         });
+
+        function sendToWhatsApp() {
+            const name = document.getElementById('contact-name').value;
+            const phone = document.getElementById('contact-phone').value;
+            const message = document.getElementById('contact-message').value;
+
+            if (!name || !phone) {
+                alert("Please fill in your name and phone number.");
+                return;
+            }
+
+            const whatsappNumber = "919205785056";
+            const text = `*New Inquiry - Rudra Travels*%0A%0A*Name:* ${encodeURIComponent(name)}%0A*Phone:* ${encodeURIComponent(phone)}%0A*Message:* ${encodeURIComponent(message)}`;
+
+            const url = `https://wa.me/${whatsappNumber}?text=${text}`;
+            window.open(url, '_blank');
+        }
 
         window.addEventListener('scroll', () => {
             const floatingSocial = document.getElementById('floating-social');
