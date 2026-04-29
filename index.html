@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rudra Travels - Uttarakhand's Finest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        saffron: '#FF9933',
+                        'forest-green': '#1B4332',
+                        'deep-gold': '#C5A059',
+                        'snow-white': '#F8F9FA'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --saffron: #FF9933;
+            --forest-green: #1B4332;
+            --deep-gold: #C5A059;
+            --snow-white: #F8F9FA;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #000;
+            margin: 0;
+            overflow-x: hidden;
+            width: 100%;
+            color: #333;
+            scroll-behavior: smooth;
+        }
+
+        html {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        h1,
+        h2,
+        h3,
+        .nav-brand,
+        #contact label,
+        #contact input,
+        #contact textarea,
+        #contact button {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            background-image: url('https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        #canvas-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(255, 255, 255, 0.9) 100%);
+            pointer-events: none;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 10;
+            opacity: 0;
+        }
+
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #1B4332;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .saffron-gradient {
+            background: linear-gradient(135deg, #FF9933 0%, #FFCC33 100%);
+        }
+
+        .section-padding {
+            padding: 40px 16px;
+        }
+
+        @media (min-width: 768px) {
+            .section-padding {
+                padding: 100px 24px;
+            }
+        }
+
+        .mandala-bg {
+            background-image: url('https://www.transparenttextures.com/patterns/mandala-ornament.png');
+            opacity: 0.08;
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .horizontal-gallery {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding: 1rem 0.5rem 2rem 0.5rem;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (min-width: 768px) {
+            .horizontal-gallery {
+                gap: 1.5rem;
+                padding: 1.5rem 0.5rem 2.5rem 0.5rem;
+            }
+        }
+
+        .horizontal-gallery::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .horizontal-gallery::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+
+        .horizontal-gallery::-webkit-scrollbar-thumb {
+            background: var(--saffron);
+            border-radius: 10px;
+        }
+
+        .gallery-card {
+            flex: 0 0 280px;
+            scroll-snap-align: start;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            height: 380px;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: transform 0.4s ease;
+        }
+
+        @media (min-width: 768px) {
+            .gallery-card {
+                flex: 0 0 320px;
+                height: 420px;
+            }
+        }
+
+        .gallery-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .gallery-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .gallery-card-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+            padding: 1.5rem 1rem 1rem;
+            color: white;
+            z-index: 2;
+        }
+
+        @media (min-width: 768px) {
+            .gallery-card-label {
+                padding: 2rem 1.5rem 1.5rem;
+            }
+        }
+
+        /* Mobile Menu Overlay */
+        #mobile-menu {
+            position: fixed;
+            inset: 0;
+            background: #1B4332;
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        #mobile-menu.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .mobile-link {
+            font-size: 2rem;
+            font-family: 'Playfair Display', serif;
+            color: white;
+            margin: 1.5rem 0;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+
+        #mobile-menu.active .mobile-link {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .contact-fader-item {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            display: flex;
+            align-items: flex-end;
+            padding: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .contact-fader-item {
+                padding: 4rem;
+            }
+        }
+
+        .contact-fader-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        .contact-fader-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 2;
+        }
+
+        .contact-fader-item.active {
+            opacity: 1;
+        }
+
+        .contact-fader-text {
+            position: relative;
+            z-index: 3;
+            color: white;
+            font-size: 2rem;
+            line-height: 1.2;
+            font-style: italic;
+            font-family: 'Playfair Display', serif;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+        }
+
+        .scroll-hint-anim {
+            animation: side-to-side 2s infinite ease-in-out;
+        }
+
+        @keyframes side-to-side {
+
+            0%,
+            100% {
+                transform: translateX(0);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: translateX(10px);
+                opacity: 1;
+            }
+        }
+
+        .logistic-img-slot {
+            height: 240px;
+            overflow: hidden;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logistic-img-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        /* Booking Route Line styling */
+        .route-line {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            border-top: 2px dashed var(--saffron);
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 1024px) {
+            .route-line {
+                display: none;
+            }
+        }
+
+        .extended-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding: 1rem 0;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .extended-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scroll-card {
+            flex: 0 0 260px;
+            height: 320px;
+            border-radius: 1rem;
+            overflow: hidden;
+            scroll-snap-align: start;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .scroll-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scroll-card-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            padding: 1rem;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .amenity-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(255, 153, 51, 0.1);
+            border: 1px solid rgba(255, 153, 51, 0.2);
+            color: var(--saffron);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 99px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .trail-svg {
+            position: absolute;
+            top: 15%;
+            left: 10%;
+            width: 80%;
+            height: 70%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .map-pin {
+            animation: pulse-pin 2s infinite;
+        }
+
+        @keyframes pulse-pin {
+            0% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 0 rgba(255, 153, 51, 0.7));
+            }
+
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 10px rgba(255, 153, 51, 0.4));
+            }
+
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 0 rgba(255, 153, 51, 0));
+            }
+        }
+
+        .text-shadow-strong {
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+        }
+
+        /* --- IMMERSIVE BENTO GRID STYLES --- */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1rem;
+        }
+
+        .bento-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .bento-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .bento-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .bento-main {
+            grid-column: span 8;
+            height: 450px;
+        }
+
+        .bento-side {
+            grid-column: span 4;
+            height: 450px;
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .bento-main {
+                grid-column: span 12;
+                height: 350px;
+            }
+
+            .bento-side {
+                grid-column: span 12;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: none;
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .bento-main {
+                height: 300px;
+            }
+
+            .bento-side {
+                height: 200px;
+            }
+        }
+
+
+        .contact-fader-item {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            display: flex;
+            align-items: flex-end;
+            padding: 4rem;
+        }
+
+        .contact-fader-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        .contact-fader-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 2;
+        }
+
+        .contact-fader-item.active {
+            opacity: 1;
+        }
+
+        .contact-fader-text {
+            position: relative;
+            z-index: 3;
+            color: white;
+            font-size: 2rem;
+            line-height: 1.2;
+            font-style: italic;
+            font-family: 'Playfair Display', serif;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+        }
+
+        /* --- TESTIMONIAL MARQUEE --- */
+        .testimonial-marquee {
+            overflow: hidden;
+            position: relative;
+            width: 100vw;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            padding: 2rem 0;
+        }
+
+        .testimonial-content {
+            display: flex;
+            gap: 2rem;
+            animation: scroll-testimonial 40s linear infinite;
+            width: max-content;
+        }
+
+        .testimonial-track {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .testimonial-marquee:hover .testimonial-content {
+            animation-play-state: paused;
+        }
+
+        .testimonial-card {
+            width: 420px;
+            white-space: normal;
+            flex-shrink: 0;
+            border-radius: 2.5rem;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3.5rem;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-8px);
+        }
+
+        @media (max-width: 768px) {
+            .testimonial-card {
+                width: 340px;
+                padding: 2.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .testimonial-card {
+                width: 260px;
+            }
+        }
+
+        @keyframes scroll-testimonial {
+            to {
+                transform: translateX(calc(-50% - 1rem));
+            }
+        }
+
+        .location-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: #fff7ed;
+            backdrop-filter: blur(10px);
+            padding: 0.6rem 1.2rem;
+            border-radius: 100px;
+            border: 2px solid #f97316;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #f97316;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.1);
+        }
+
+        @media (min-width: 768px) {
+            .location-bar {
+                padding: 0.8rem 1.5rem;
+                font-size: 1.1rem;
+                margin-bottom: 2rem;
+            }
+        }
+
+        .location-bar:hover {
+            background: #f97316;
+            color: white;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(249, 115, 22, 0.3);
+        }
+
+        .location-bar svg {
+            width: 1.4rem;
+            height: 1.4rem;
+            transition: transform 0.3s ease;
+        }
+
+        .location-bar:hover svg {
+            transform: rotate(-10deg) scale(1.2);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* --- BOOKING AUTOSCROLL (MOBILE) --- */
+        @media (max-width: 767px) {
+            .booking-marquee {
+                overflow: hidden;
+                width: 100%;
+                padding: 1.5rem 0;
+            }
+
+            .booking-track {
+                display: flex;
+                width: max-content;
+                animation: scroll-booking 30s linear infinite;
+                gap: 2rem;
+            }
+
+            .booking-track:hover,
+            .booking-track:active {
+                animation-play-state: paused;
+            }
+
+            .booking-step {
+                width: 280px;
+                flex-shrink: 0;
+                background: white;
+                padding: 2rem 1.5rem;
+                border-radius: 2rem;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+                border: 1px solid rgba(0, 0, 0, 0.03);
+            }
+
+            @keyframes scroll-booking {
+                0% {
+                    transform: translateX(0);
+                }
+
+                100% {
+                    transform: translateX(calc(-50% - 1rem));
+                }
+            }
+        }
+
+        @keyframes whatsapp-pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(37, 211, 102, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+            }
+        }
+
+        .whatsapp-pulse {
+            animation: whatsapp-pulse 2s infinite;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loader">
+        <div class="text-3xl font-serif mb-4 tracking-widest uppercase">Rudra Travels</div>
+        <div class="w-64 h-1 bg-white/10 rounded-full overflow-hidden">
+            <div id="loader-bar" class="w-0 h-full bg-orange-500"></div>
+        </div>
+        <p class="mt-6 text-[10px] tracking-[0.3em] uppercase opacity-40">Dev Bhoomi is Calling</p>
+    </div>
+
+    <div class="custom-cursor" id="cursor"></div>
+
+    <div id="canvas-container"></div>
+
+    <div class="content-wrapper" id="main-content">
+        <!-- Navigation -->
+        <nav id="navbar"
+            class="fixed top-0 w-full z-[70] px-4 md:px-10 py-4 md:py-6 flex justify-between items-center bg-white/70 backdrop-blur-xl border-b border-white/20">
+            <div
+                class="nav-brand flex items-center gap-2 md:gap-3 text-xl md:text-2xl font-bold text-orange-600 tracking-tighter">
+                <img src="assets/Logo.png" alt="Logo" class="h-8 md:h-10 w-auto">
+                <span class="leading-none">RUDRA <span
+                        class="text-forest-green block md:inline text-xs md:text-2xl tracking-widest md:tracking-tighter">TRAVELS</span></span>
+            </div>
+            <div class="hidden lg:flex space-x-6 text-[12px] font-bold tracking-[0.2em] text-gray-900">
+                <a href="#stays" class="hover:text-orange-500 transition-colors uppercase">Stays</a>
+                <a href="#logistics" class="hover:text-orange-500 transition-colors uppercase">Logistics</a>
+                <a href="#gallery" class="hover:text-orange-500 transition-colors uppercase">Gallery</a>
+                <a href="#booking" class="hover:text-orange-500 transition-colors uppercase">How to Book</a>
+                <a href="#testimonials" class="hover:text-orange-500 transition-colors uppercase">Reviews</a>
+                <a href="#contact" class="hover:text-orange-500 transition-colors uppercase">Contact</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="#contact"
+                    class="inline-block bg-forest-green text-white px-5 md:px-8 py-2.5 md:py-3 rounded-full font-bold text-[9px] md:text-[10px] tracking-widest hover:bg-orange-600 transition-all shadow-lg active:scale-95 border border-white/20">
+                    BOOK NOW
+                </a>
+                <button id="menu-toggle" class="lg:hidden text-forest-green p-2 z-[80]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu">
+            <a href="#stays" class="mobile-link" style="transition-delay: 0.1s;">Stays</a>
+            <a href="#logistics" class="mobile-link" style="transition-delay: 0.2s;">Logistics</a>
+            <a href="#gallery" class="mobile-link" style="transition-delay: 0.3s;">Gallery</a>
+            <a href="#booking" class="mobile-link" style="transition-delay: 0.4s;">Booking</a>
+            <a href="#contact" class="mobile-link" style="transition-delay: 0.5s;">Contact</a>
+            <div class="mt-12 text-white/40 text-[8px] tracking-[0.4em] uppercase">Uttarakhand await you</div>
+        </div>
+
+        <!-- Hero Section -->
+        <section class="min-h-[100svh] flex flex-col justify-center items-center text-center px-4 relative pt-20">
+            <!-- Classy Cinematic Backlight -->
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] w-[90vw] max-w-4xl h-[40vh] bg-white/40 blur-[120px] rounded-[100%] pointer-events-none">
+            </div>
+
+            <div class="hero-reveal w-full max-w-5xl relative z-10">
+                <h4 id="hero-sub"
+                    class="text-white font-bold tracking-[0.4em] md:tracking-[0.6em] mb-4 md:mb-6 text-[10px] md:text-xs uppercase opacity-80">
+                    Uttarakhand's Soulful Stays</h4>
+                <h1 id="hero-title"
+                    class="text-4xl sm:text-5xl md:text-7xl lg:text-[10rem] text-forest-green font-bold mb-6 md:mb-8 leading-[1.1] md:leading-[0.9] tracking-tighter">
+                    Experience <span class="md:inline">the Divine.</span>
+                    <br> <span class="text-orange-500">Explore the Himalayas.</span>
+                </h1>
+            </div>
+            <p id="hero-p"
+                class="text-lg md:text-xl text-gray-900 max-w-xl mx-auto mb-12 font-medium leading-relaxed bg-white/30 backdrop-blur-md p-6 rounded-2xl border border-white/30 shadow-xl">
+                Experience the spiritual heart of India. From luxury camps in Chopta to the divine peace of
+                Badrinath and kedarnath dham.
+            </p>
+            <div id="hero-btns" class="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center w-full max-w-xl mx-auto">
+                <a href="#stays"
+                    class="flex-1 flex justify-center items-center saffron-gradient text-white px-8 py-5 md:py-6 rounded-full font-bold shadow-[0_10px_30px_rgba(249,115,22,0.3)] hover:shadow-[0_15px_40px_rgba(249,115,22,0.5)] hover:-translate-y-1 transition-all duration-300 text-sm md:text-base uppercase tracking-widest">
+                    Explore Stays
+                </a>
+                <a href="https://wa.me/+919205785056"
+                    class="flex-1 flex justify-center items-center gap-3 bg-forest-green text-white px-8 py-5 md:py-6 rounded-full font-bold shadow-[0_10px_30px_rgba(10,31,22,0.3)] hover:shadow-[0_15px_40px_rgba(10,31,22,0.5)] hover:-translate-y-1 transition-all duration-300 text-sm md:text-base uppercase tracking-widest border border-white/10">
+
+                    WhatsApp Us
+                </a>
+            </div>
+
+        </section>
+
+        <section id="stays" class="section-padding bg-white/95 relative overflow-hidden border-b border-gray-100">
+            <div class="mandala-bg"></div>
+            <div class="container mx-auto relative z-10 px-6">
+
+                <div class="text-center mb-16 md:mb-32">
+                    <h2 class="text-4xl md:text-8xl text-forest-green font-bold mb-4 md:mb-6 tracking-tighter">Our
+                        Destinations and stays</h2>
+                    <p
+                        class="text-gray-900 tracking-[0.3em] md:tracking-[0.6em] uppercase text-[9px] md:text-xs font-bold px-4">
+                        Nature Glamping • Sacred
+                        Sanctuaries • Royal Salvation</p>
+                    <div class="w-20 md:w-32 h-1 saffron-gradient mx-auto mt-6 md:mt-10 rounded-full opacity-60"></div>
+                </div>
+
+                <!-- 1. CHOPTA: EXTENDED CHAPTER -->
+                <div class="mb-16 lg:mb-56 location-block">
+                    <div class="flex flex-col lg:flex-row gap-6 lg:gap-12 items-center mb-6 md:mb-10">
+                        <div class="lg:w-1/2">
+                            <span
+                                class="text-orange-600 font-bold tracking-[0.3em] uppercase text-[10px] mb-2 md:mb-4 block">Chapter
+                                01</span>
+                            <h3 class="text-3xl md:text-7xl font-bold text-forest-green mb-4 md:mb-6 tracking-tighter">
+                                Chopta:<br><span class="text-orange-500">The Ascent</span></h3>
+                            <a href="https://www.google.com/maps/place/Tungnath+Valley+Eco+Camps/@30.4806179,79.198559,19z/data=!4m6!3m5!1s0x3908331bede461a7:0xb9a558f95b84e315!8m2!3d30.481074!4d79.1993954!16s%2Fg%2F11z65q2ljx?entry=ttu&g_ep=EgoyMDI2MDQyMi4wIKXMDSoASAFQAw%3D%3D"
+                                target="_blank" class="location-bar">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                Chopta, Rudraprayag, Uttarakhand
+                            </a>
+                            <p
+                                class="text-base md:text-lg text-gray-900 leading-relaxed mb-6 md:mb-8 font-medium italic">
+                                "Wake up to the
+                                crown of India."</p>
+                            <div class="flex flex-wrap gap-2 mb-8 md:mb-10">
+                                <span class="amenity-pill">🏔️ 360° Peak Views</span>
+                                <span class="amenity-pill">⛺ comfortable camps</span>
+                                <span class="amenity-pill">🔥 Bonfire Evenings</span>
+                            </div>
+                            <p class="text-gray-900 leading-relaxed max-w-md text-sm md:text-base">Experience basecamps
+                                where tradition meets luxury. Savor authentic slow-cooked cuisine and premium
+                                hospitality in the shadow of Tungnath. Pure taste, elevated living.</p>
+                        </div>
+                        <div class="lg:w-1/2 w-full">
+                            <div class="bento-grid">
+                                <div class="bento-main bento-item">
+                                    <img src="./assets/Chopta1.jpeg" alt="Chopta View">
+                                </div>
+                                <div class="bento-side">
+                                    <div class="bento-sub bento-item">
+                                        <img src="./assets/Chopta2.jpeg" alt="Interior">
+                                    </div>
+                                    <div class="bento-sub bento-item">
+                                        <img src="./assets/Chopta8.jpg" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- CHOPTA EXTENDED IMAGES SCROLL -->
+                    <div class="mt-8">
+                        <p
+                            class="text-[14px] font-bold text-gray-900 uppercase tracking-[0.3em] mb-4 flex items-center gap-4">
+                            explore camps <span class="h-px bg-gray-200 flex-grow"></span>
+                        </p>
+                        <div class="extended-scroll">
+                            <div class="scroll-card"><img src="./assets/Chopta4.jpeg" alt="Tent Shot">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/Chopta5.jpeg" alt="Bonfire Shot">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/Chopta6.jpeg" alt="Meadow Shot">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/Chopta7.jpeg" alt="Tent Night">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/Chopta13.jpeg" alt="Pahadi Kitchen">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. KEDARNATH: EXTENDED CHAPTER -->
+                <div class="mb-24 lg:mb-56 location-block">
+                    <div class="flex flex-col lg:flex-row-reverse gap-8 lg:gap-16 items-center mb-10 md:mb-16">
+                        <div class="lg:w-1/2">
+                            <span
+                                class="text-forest-green font-bold tracking-[0.3em] uppercase text-xs mb-4 block">Chapter
+                                02</span>
+                            <h3 class="text-4xl md:text-7xl font-bold text-forest-green mb-4 md:mb-6 tracking-tighter">
+                                Kedarnath:<br><span class="text-orange-500">Divine Rest</span></h3>
+                            <a href="https://www.google.com/maps/search/Kedarnath+Uttarakhand" target="_blank"
+                                class="location-bar">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                Kedarnath Dham, Uttarakhand
+                            </a>
+                            <p class="text-lg text-gray-900 leading-relaxed mb-8 font-medium italic">"Rest after the
+                                Sacred Climb."</p>
+                            <div class="flex flex-wrap mb-10">
+                                <span class="amenity-pill">🕉️ best food</span>
+                                <span class="amenity-pill">🏨 cozy Stays</span>
+                                <span class="amenity-pill">🛁 24/7 Hot Water</span>
+                            </div>
+                            <p class="text-gray-900 leading-relaxed max-w-md">Our recovery-focused suites provide the
+                                ultimate haven of warmth and comfort, specifically designed to revitalize your spirit
+                                after the sacred climb.</p>
+                        </div>
+                        <div class="lg:w-1/2 w-full">
+                            <div class="bento-grid">
+                                <div class="bento-main bento-item">
+                                    <img src="./assets/Kedarnath4.jpeg" alt="Kedarnath Shrine">
+                                </div>
+                                <div class="bento-side">
+                                    <div class="bento-sub bento-item">
+                                        <img src="./assets/Kedarnath5.jpg" alt="Lodge Room">
+                                    </div>
+                                    <div class="bento-sub bento-item">
+                                        <img src="./assets/Kedarnath6.jpg" alt="Hot Tea">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- KEDARNATH EXTENDED IMAGES SCROLL -->
+                    <div class="mt-4">
+                        <p
+                            class="text-[14px] font-bold text-gray-900 uppercase tracking-[0.3em] mb-4 flex items-center gap-4">
+                            exoplore rooms <span class="h-px bg-gray-200 flex-grow"></span>
+                        </p>
+                        <div class="extended-scroll">
+                            <div class="scroll-card"><img src="./assets/Kedarnath7.jpeg" alt="Room View">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/k8.jpeg" alt="Lobby">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/Kedarnath9.jpeg" alt="Temple Path">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/Kedarnath10.jpeg" alt="Hot Food">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/k1.jpeg" alt="Hotel Façade">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. BADRINATH: EXTENDED CHAPTER -->
+                <div class="location-block">
+                    <div class="flex flex-col lg:flex-row gap-6 lg:gap-12 items-center mb-6 md:mb-10">
+                        <div class="lg:w-1/2">
+                            <span class="text-blue-900 font-bold tracking-[0.3em] uppercase text-xs mb-4 block">Chapter
+                                03</span>
+                            <h3 class="text-4xl md:text-7xl font-bold text-forest-green mb-4 md:mb-6 tracking-tighter">
+                                Badrinath:<br><span class="text-orange-500">Royal Salvation</span></h3>
+                            <a href="https://www.google.com/maps/place/30%C2%B024'22.8%22N+79%C2%B020'43.4%22E/@30.4063377,79.3428078,17z/data=!3m1!4b1!4m4!3m3!8m2!3d30.4063377!4d79.3453827?hl=en&entry=ttu&g_ep=EgoyMDI2MDQyMi4wIKXMDSoASAFQAw%3D%3D"
+                                target="_blank" class="location-bar">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                Badrinath Dham, Chamoli, Uttarakhand
+                            </a>
+                            <p class="text-lg text-gray-900 leading-relaxed mb-8 font-medium italic">"Premium comfort at
+                                badrinath dham ."</p>
+                            <div class="flex flex-wrap mb-10">
+                                <span class="amenity-pill">🏔️ Neelkanth Peak Views</span>
+                                <span class="amenity-pill">🛋️ comfortable rooms </span>
+                                <span class="amenity-pill">✨ Saatvik Excellence</span>
+                            </div>
+                            <p class="text-gray-900 leading-relaxed max-w-md">At the foot of Mount Neelkanth, our
+                                boutique suites blend Saatvik excellence with modern luxury for a truly peaceful
+                                pilgrimage.</p>
+                        </div>
+                        <div class="lg:w-1/2 w-full">
+                            <div class="bento-grid">
+                                <div class="bento-main bento-item">
+                                    <img src="./assets/Badrinath9.webp" alt="Badrinath Dham">
+                                </div>
+                                <div class="bento-side">
+                                    <div class="bento-sub bento-item">
+                                        <img src="./assets/Badrinath8.jpg" alt="Neelkanth">
+                                    </div>
+                                    <div class="bento-sub bento-item">
+                                        <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=600"
+                                            alt="Dining">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- BADRINATH EXTENDED IMAGES SCROLL -->
+                    <div class="mt-4">
+                        <p
+                            class="text-[14px] font-bold text-gray-900 uppercase tracking-[0.3em] mb-4 flex items-center gap-4">
+                            Explore Rooms & Suites <span class="h-px bg-gray-200 flex-grow"></span>
+                        </p>
+                        <div class="extended-scroll">
+                            <div class="scroll-card"><img src="./assets/b8.jpeg" alt="Suite Interior">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/Badrinath1.jpeg" alt="Window Shot">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/Badrinath3.jpeg" alt="Bath Shot">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/b7.jpeg" alt="Dining Room">
+                            </div>
+                            <div class="scroll-card"><img src="./assets/Badrinath6.jpeg" alt="Garden">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Logistics Section -->
+            <section id="logistics" class="section-padding bg-gray-50/90 relative overflow-hidden">
+                <div class="container mx-auto relative z-10 px-6">
+                    <div class="text-center mb-12 md:mb-16">
+                        <h2 class="text-4xl md:text-7xl text-forest-green font-bold mb-4 tracking-tighter">Seamless
+                            Logistics</h2>
+                        <p class="text-gray-900 tracking-[0.2em] md:tracking-[0.5em] uppercase text-[9px] md:text-[10px] font-bold">Safe Transfers •
+                            Expert Hill Drivers</p>
+                        <div class="w-20 h-1 saffron-gradient mx-auto mt-6 rounded-full opacity-50"></div>
+                    </div>
+
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-8 pb-10 md:pb-0">
+                        <div class="glass-card p-6 md:p-8 logistic-card group hover:shadow-2xl transition-all duration-500">
+                            <div class="logistic-img-slot overflow-hidden">
+                                <img src="./assets/Traveller1.webp" alt="Delhi SUV" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            </div>
+                            <h3 class="text-2xl font-bold text-orange-600 mb-4">Delhi to Delhi</h3>
+                            <p class="text-gray-900 text-sm leading-relaxed mb-6">Full circuit round-trips in
+                                comfortable SUVs (Innova/Bolero) or Tempo Travelers. Journey starts right from your
+                                doorstep.</p>
+                            <div
+                                class="flex items-center gap-2 text-[10px] font-bold text-forest-green uppercase tracking-widest">
+                                <span class="w-2 h-2 rounded-full bg-orange-400"></span> Full Circuit Rounds
+                            </div>
+                        </div>
+                        <div class="glass-card p-6 md:p-8 logistic-card group hover:shadow-2xl transition-all duration-500">
+                            <div class="logistic-img-slot overflow-hidden">
+                                <img src="./assets/logiostics 2.png" alt="Chopta Road" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            </div>
+                            <h3 class="text-2xl font-bold text-orange-600 mb-4">Rishikesh to Chopta</h3>
+                            <p class="text-gray-900 text-sm leading-relaxed mb-6">Direct transfers from Haridwar or
+                                Rishikesh to our luxury camps in Chopta. We navigate the winding curves safely.</p>
+                            <div
+                                class="flex items-center gap-2 text-[10px] font-bold text-forest-green uppercase tracking-widest">
+                                <span class="w-2 h-2 rounded-full bg-orange-400"></span> Direct Camp Access
+                            </div>
+                        </div>
+                        <div class="glass-card p-6 md:p-8 logistic-card group hover:shadow-2xl transition-all duration-500">
+                            <div class="logistic-img-slot overflow-hidden">
+                                <img src="./assets/Dham.png" alt="Dham Transfer" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            </div>
+                            <h3 class="text-2xl font-bold text-orange-600 mb-4">The Dham Circuit</h3>
+                            <p class="text-gray-900 text-sm leading-relaxed mb-6">Safe and reliable hill transfers from
+                                Haridwar to Kedarnath & Badrinath. Ideal for the 2-Dham circuits with local expertise.
+                            </p>
+                            <div
+                                class="flex items-center gap-2 text-[10px] font-bold text-forest-green uppercase tracking-widest">
+                                <span class="w-2 h-2 rounded-full bg-orange-400"></span> Reliable Hill Expertise
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gallery Section -->
+            <section id="gallery" class="section-padding bg-white/60 relative">
+                <div class="container mx-auto relative z-10 px-6">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-10 md:mb-16 gap-6">
+                        <h2 class="text-4xl md:text-7xl text-forest-green font-bold tracking-tighter max-w-lg">Dev
+                            Bhoomi
+                            Gallery</h2>
+                        <div class="flex gap-4">
+                            <button onclick="scrollGallery('prev')"
+                                class="carousel-nav-btn w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all"><svg
+                                    class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7"></path>
+                                </svg></button>
+                            <button onclick="scrollGallery('next')"
+                                class="carousel-nav-btn w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all"><svg
+                                    class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg></button>
+                        </div>
+                    </div>
+                    <div id="gallery-carousel" class="carousel-container horizontal-gallery">
+                        <div
+                            class="carousel-item flex-none w-[85%] md:w-[60%] h-[350px] md:h-[450px] rounded-[2rem] overflow-hidden relative shadow-2xl">
+                            <img src="./assets/Kedarnath6.jpg" alt="Kedar" class="w-full h-full object-cover">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-10 flex flex-col justify-end text-white">
+                                <h4 class="text-lg md:text-2xl font-bold uppercase tracking-widest text-shadow-sm">
+                                    Kedarnath Valley
+                                </h4>
+                            </div>
+                        </div>
+                        <div
+                            class="carousel-item flex-none w-[85%] md:w-[60%] h-[350px] md:h-[450px] rounded-[2rem] overflow-hidden relative shadow-2xl">
+                            <img src="./assets/Chopta10.webp" alt="Kedar" class="w-full h-full object-cover">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-10 flex flex-col justify-end text-white">
+                                <h4 class="text-sm md:text-2xl font-bold uppercase tracking-widest text-shadow-sm">
+                                    Chandrashila
+                                    Sun Rise</h4>
+                            </div>
+                        </div>
+                        <!-- <div class="carousel-item flex-none w-[80%] md:w-[60%] h-[450px] rounded-[2rem] overflow-hidden relative shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?q=80&w=1200" alt="Mountain" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-10 flex flex-col justify-end text-white"><h4 class="text-lg md:text-2xl font-bold uppercase tracking-widest text-shadow-sm">Neelkanth Peak</h4></div>
+                    </div> -->
+                        <div
+                            class="carousel-item flex-none w-[85%] md:w-[60%] h-[350px] md:h-[450px] rounded-[2rem] overflow-hidden relative shadow-2xl">
+                            <img src="./assets/Kedarnath2.webp" alt="Kedar" class="w-full h-full object-cover">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-10 flex flex-col justify-end text-white">
+                                <h4 class="text-lg md:text-2xl font-bold uppercase tracking-widest text-shadow-sm">
+                                    Tungnath
+                                    trails</h4>
+                            </div>
+                        </div>
+                        <div
+                            class="carousel-item flex-none w-[85%] md:w-[60%] h-[350px] md:h-[450px] rounded-[2rem] overflow-hidden relative shadow-2xl">
+                            <img src="./assets/Kedarnath3.jpg" alt="Kedar" class="w-full h-full object-cover">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-10 flex flex-col justify-end text-white">
+                                <h4 class="text-lg md:text-2xl font-bold uppercase tracking-widest text-shadow-sm">kedar
+                                    valley</h4>
+                            </div>
+                        </div>
+                        <div
+                            class="carousel-item flex-none w-[85%] md:w-[60%] h-[350px] md:h-[450px] rounded-[2rem] overflow-hidden relative shadow-2xl">
+                            <img src="./assets/Chopta11.jpg" alt="Kedar" class="w-full h-full object-cover">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent p-10 flex flex-col justify-end text-white">
+                                <h4 class="text-lg md:text-2xl font-bold uppercase tracking-widest text-shadow-sm">
+                                    Chopta
+                                    Stargazing</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How to Book (Route Map Style) -->
+            <section id="booking" class="section-padding bg-gray-50/90 relative overflow-hidden">
+                <div class="mandala-bg"></div>
+                <div class="container mx-auto relative z-10 px-6">
+                    <div class="text-center mb-20">
+                        <h2 class="text-5xl md:text-7xl text-forest-green font-bold mb-4 tracking-tighter">Plan Your
+                            Route</h2>
+                        <p class="text-gray-900 tracking-[0.5em] uppercase text-[10px] font-bold">How to Book in 3
+                            Simple Steps</p>
+                        <div class="w-20 h-1 saffron-gradient mx-auto mt-6 rounded-full opacity-50"></div>
+                    </div>
+                </div>
+
+                <div class="booking-marquee mt-10">
+                    <div
+                        class="relative booking-track md:grid md:grid-cols-3 gap-8 md:gap-12 md:max-w-6xl md:mx-auto md:px-6">
+                        <div class="route-line hidden md:block"></div>
+
+                        <!-- Set 1 -->
+                        <div class="booking-step relative z-10 flex flex-col items-center text-center group">
+                            <div
+                                class="w-16 h-16 md:w-20 md:h-20 bg-orange-500 text-white rounded-full flex items-center justify-center text-2xl md:text-3xl font-bold shadow-xl mb-6 md:mb-8 group-hover:scale-110 transition-all border-4 border-white">
+                                1</div>
+                            <div
+                                class="w-full h-48 md:h-56 rounded-3xl overflow-hidden mb-6 md:mb-8 shadow-lg border-2 border-white">
+                                <img src="./assets/package.png" class="w-full h-full object-cover"
+                                    alt="Browse Packages">
+                            </div>
+                            <h4 class="text-xl md:text-2xl font-bold text-forest-green mb-4">Select Your Package</h4>
+                            <p class="text-xs md:text-sm text-gray-900 leading-relaxed px-4">Browse our curated
+                                destinations or choose the 2-Dham Yatra circuit.</p>
+                        </div>
+
+                        <div class="booking-step relative z-10 flex flex-col items-center text-center group lg:mt-16">
+                            <div
+                                class="w-16 h-16 md:w-20 md:h-20 bg-orange-500 text-white rounded-full flex items-center justify-center text-2xl md:text-3xl font-bold shadow-xl mb-6 md:mb-8 group-hover:scale-110 transition-all border-4 border-white">
+                                2</div>
+                            <div
+                                class="w-full h-48 md:h-56 rounded-3xl overflow-hidden mb-6 md:mb-8 shadow-lg border-2 border-white">
+                                <img src="https://images.unsplash.com/photo-1516251193007-45ef944ab0c6?q=80&w=800"
+                                    class="w-full h-full object-cover" alt="Connect WhatsApp">
+                            </div>
+                            <h4 class="text-xl md:text-2xl font-bold text-forest-green mb-4">Connect with Us</h4>
+                            <p class="text-xs md:text-sm text-gray-900 leading-relaxed px-4">Use the WhatsApp button or
+                                DM us with your travel dates.</p>
+                        </div>
+
+                        <div class="booking-step relative z-10 flex flex-col items-center text-center group lg:mt-32">
+                            <div
+                                class="w-16 h-16 md:w-20 md:h-20 bg-orange-500 text-white rounded-full flex items-center justify-center text-2xl md:text-3xl font-bold shadow-xl mb-6 md:mb-8 group-hover:scale-110 transition-all border-4 border-white">
+                                3</div>
+                            <div
+                                class="w-full h-48 md:h-56 rounded-3xl overflow-hidden mb-6 md:mb-8 shadow-lg border-2 border-white">
+                                <img src="./assets/image%20copy.png" class="w-full h-full object-cover"
+                                    alt="Confirm Travel">
+                            </div>
+                            <h4 class="text-xl md:text-2xl font-bold text-forest-green mb-4">Confirm & Travel</h4>
+                            <p class="text-xs md:text-sm text-gray-900 leading-relaxed px-4">Receive your personalized
+                                itinerary and pack your bags!</p>
+                        </div>
+
+                        <!-- Set 2 (Duplicates for seamless mobile marquee) -->
+                        <div class="booking-step md:hidden relative z-10 flex flex-col items-center text-center group">
+                            <div
+                                class="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-xl mb-6 border-4 border-white">
+                                1</div>
+                            <div class="w-full h-48 rounded-3xl overflow-hidden mb-6 shadow-lg border-2 border-white">
+                                <img src="./assets/package.png" class="w-full h-full object-cover"
+                                    alt="Browse Packages">
+                            </div>
+                            <h4 class="text-xl font-bold text-forest-green mb-4">Select Your Package</h4>
+                            <p class="text-xs text-gray-900 leading-relaxed px-4">Browse our curated destinations or
+                                choose the 2-Dham Yatra circuit.</p>
+                        </div>
+
+                        <div
+                            class="booking-step md:hidden relative z-10 flex flex-col items-center text-center group lg:mt-16">
+                            <div
+                                class="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-xl mb-6 border-4 border-white">
+                                2</div>
+                            <div class="w-full h-48 rounded-3xl overflow-hidden mb-6 shadow-lg border-2 border-white">
+                                <img src="https://images.unsplash.com/photo-1516251193007-45ef944ab0c6?q=80&w=800"
+                                    class="w-full h-full object-cover" alt="Connect WhatsApp">
+                            </div>
+                            <h4 class="text-xl font-bold text-forest-green mb-4">Connect with Us</h4>
+                            <p class="text-xs text-gray-900 leading-relaxed px-4">Use the WhatsApp button or DM us with
+                                your travel dates.</p>
+                        </div>
+
+                        <div
+                            class="booking-step md:hidden relative z-10 flex flex-col items-center text-center group lg:mt-32">
+                            <div
+                                class="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-xl mb-6 border-4 border-white">
+                                3</div>
+                            <div class="w-full h-48 rounded-3xl overflow-hidden mb-6 shadow-lg border-2 border-white">
+                                <img src="./assets/image%20copy.png" class="w-full h-full object-cover"
+                                    alt="Confirm Travel">
+                            </div>
+                            <h4 class="text-xl font-bold text-forest-green mb-4">Confirm & Travel</h4>
+                            <p class="text-xs text-gray-900 leading-relaxed px-4">Receive your personalized itinerary
+                                and pack your bags!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container mx-auto px-6">
+                    <div class="mt-24 text-center">
+                        <a href="#contact"
+                            class="saffron-gradient text-white px-12 py-5 rounded-full font-bold shadow-2xl hover:scale-105 transition-all text-xs tracking-widest uppercase inline-flex items-center gap-3">
+                            Start Step 1 Now
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Section -->
+            <section id="services" class="section-padding relative overflow-hidden">
+                <div class="absolute inset-0 bg-emerald-950/90 backdrop-blur-md z-0"></div>
+                <div class="container mx-auto px-6 relative z-10 text-white">
+                    <div class="flex flex-col lg:flex-row items-center gap-20">
+                        <div class="lg:w-1/2">
+                            <h4
+                                class="text-orange-400 tracking-[0.5em] font-bold mb-8 text-[10px] uppercase opacity-80">
+                                Cultivated Experiences</h4>
+                            <h2
+                                class="text-6xl md:text-8xl font-bold mb-10 leading-tight tracking-tighter text-shadow-sm text-center md:text-left">
+                                Special 2-Dham <br><span
+                                    class="text-orange-400 underline decoration-white/20">Yatra</span></h2>
+                            <p class="text-xl text-gray-100 mb-14 leading-relaxed font-light max-w-lg">We manage every
+                                registration, transfer, and luxury stay so your heart can focus purely on devotion.</p>
+                            <a href="#contact"
+                                class="inline-flex saffron-gradient text-white font-bold py-6 px-16 rounded-full transition-all hover:px-20 active:scale-95 shadow-xl uppercase text-xs tracking-widest">Begin
+                                Reservation</a>
+                        </div>
+                        <div class="lg:w-1/2 hidden lg:block">
+                            <img src="./assets/Dham.png"
+                                class="w-96 h-96 object-contain shadow-xl rounded-full border-[12px] border-white/10"
+                                alt="Kedarnath Dham">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials -->
+            <section id="testimonials" class="section-padding bg-white/80 relative overflow-hidden">
+                <div class="mandala-bg"></div>
+                <div class="container mx-auto relative z-10 px-6 text-center">
+                    <h2 class="text-5xl md:text-7xl text-forest-green font-bold mb-16 tracking-tighter text-shadow-sm">
+                        Traveler Stories</h2>
+                    <div class="testimonial-marquee">
+                        <div class="testimonial-content">
+                            <!-- Track 1 -->
+                            <div class="testimonial-track">
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"The stay at Chopta was
+                                        magical. Waking up to the Himalayas in such luxury was beyond words."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Amit Sharma
+                                    </div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"Performing the Aarti
+                                        at Kedarnath without worrying about logistics was a true blessing."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Rajiv
+                                        Khanna</div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"Top-notch hospitality
+                                        at Badrinath. We could hear the morning prayers right from our suite."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Meera Patel
+                                    </div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"Our family was worried
+                                        about the mountain roads, but the drivers were incredibly professional. A
+                                        seamless Yatra."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Vikram
+                                        Singh</div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"The organic Pahadi
+                                        meals at the camps were easily the highlight of our trip. Absolutely delicious
+                                        and comforting!"</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Anjali
+                                        Desai</div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"The boutique suites in
+                                        Badrinath offer Royal Salvation just as promised. We felt completely
+                                        rejuvenated."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Sneha &
+                                        Rahul</div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"Waking up to the 360°
+                                        views of Chandrashila and retreating to a warm bonfire at night was sheer
+                                        perfection."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">David &
+                                        Sarah</div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"The 2-Dham package was
+                                        flawlessly organized. I could focus entirely on my prayers while they handled
+                                        the rest."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Sunita
+                                        Agarwal</div>
+                                </div>
+                            </div>
+                            <!-- Track 2 (Duplicate for infinite scroll) -->
+                            <div class="testimonial-track" aria-hidden="true">
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"The stay at Chopta was
+                                        magical. Waking up to the Himalayas in such luxury was beyond words."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Amit Sharma
+                                    </div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"Performing the Aarti
+                                        at Kedarnath without worrying about logistics was a true blessing."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Rajiv
+                                        Khanna</div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"Top-notch hospitality
+                                        at Badrinath. We could hear the morning prayers right from our suite."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Meera Patel
+                                    </div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"Our family was worried
+                                        about the mountain roads, but the drivers were incredibly professional. A
+                                        seamless Yatra."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Vikram
+                                        Singh</div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"The organic Pahadi
+                                        meals at the camps were easily the highlight of our trip. Absolutely delicious
+                                        and comforting!"</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Anjali
+                                        Desai</div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"The boutique suites in
+                                        Badrinath offer Royal Salvation just as promised. We felt completely
+                                        rejuvenated."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Sneha &
+                                        Rahul</div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"Waking up to the 360°
+                                        views of Chandrashila and retreating to a warm bonfire at night was sheer
+                                        perfection."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">David &
+                                        Sarah</div>
+                                </div>
+                                <div class="testimonial-card">
+                                    <p class="text-gray-600 text-lg italic mb-8 leading-relaxed">"The 2-Dham package was
+                                        flawlessly organized. I could focus entirely on my prayers while they handled
+                                        the rest."</p>
+                                    <div class="font-bold text-sm uppercase tracking-widest text-orange-500">Sunita
+                                        Agarwal</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="section-padding bg-gray-50">
+                <div class="container mx-auto max-w-6xl px-6">
+                    <div
+                        class="bg-white rounded-[3rem] overflow-hidden grid grid-cols-1 lg:grid-cols-2 shadow-2xl border border-gray-100 min-h-[600px]">
+                        <div class="p-10 md:p-16 lg:p-24 bg-white flex flex-col justify-center">
+                            <h2 class="text-5xl font-bold text-forest-green mb-10 tracking-tighter">Plan Your Journey
+                            </h2>
+                            <form id="contact-form" class="space-y-8">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div
+                                        class="border-b border-gray-200 pb-2 transition-all focus-within:border-orange-500">
+                                        <label
+                                            class="text-[10px] font-bold uppercase text-gray-500 mb-2 block tracking-[0.2em]">Full
+                                            Name</label>
+                                        <input type="text" id="contact-name" placeholder="Your Name"
+                                            class="w-full p-2 outline-none text-sm font-semibold text-forest-green bg-transparent placeholder:text-gray-300">
+                                    </div>
+                                    <div
+                                        class="border-b border-gray-200 pb-2 transition-all focus-within:border-orange-500">
+                                        <label
+                                            class="text-[10px] font-bold uppercase text-gray-500 mb-2 block tracking-[0.2em]">Phone</label>
+                                        <input type="tel" id="contact-phone" placeholder="+91 XXXX"
+                                            class="w-full p-2 outline-none text-sm font-semibold text-forest-green bg-transparent placeholder:text-gray-300">
+                                    </div>
+                                </div>
+                                <div
+                                    class="border-b border-gray-200 pb-2 transition-all focus-within:border-orange-500">
+                                    <label
+                                        class="text-[10px] font-bold uppercase text-gray-500 mb-2 block tracking-[0.2em]">Your
+                                        Message</label>
+                                    <textarea id="contact-message"
+                                        placeholder="How can we help you plan your spiritual escape?" rows="3"
+                                        class="w-full p-2 outline-none text-sm font-semibold text-forest-green resize-none bg-transparent placeholder:text-gray-300"></textarea>
+                                </div>
+                                <button type="button" onclick="sendToWhatsApp()"
+                                    class="w-full bg-forest-green text-white font-bold py-6 rounded-2xl hover:bg-black transition-all tracking-[0.3em] uppercase text-[10px]">Request
+                                    Callback</button>
+                            </form>
+                        </div>
+                        <div class="hidden lg:block relative overflow-hidden h-full">
+                            <div id="contact-content-fader" class="absolute inset-0 h-full w-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="bg-[#0a1f16] text-white py-24 relative z-20 border-t border-white/5">
+                <div class="container mx-auto text-center px-6">
+                    <div class="nav-brand text-4xl font-bold text-orange-400 mb-10 tracking-tighter text-shadow-sm">
+                        RUDRA TRAVELS</div>
+                    <div
+                        class="flex justify-center flex-wrap gap-8 md:gap-16 mb-16 text-[11px] font-bold tracking-[0.4em] text-gray-400 uppercase">
+                        <a href="https://www.instagram.com/tungnathvalley_ecocamps?igsh=MXMyejEzcndiZm80dw=="
+                            class="flex items-center gap-2 hover:text-white transition-all">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill-rule="evenodd"
+                                    d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Instagram
+                        </a>
+                        <a href="https://wa.me/919205785056"
+                            class="flex items-center gap-2 hover:text-white transition-all">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd"
+                                    d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Contact
+                        </a>
+
+                    </div>
+                    <p class="text-gray-400 text-[9px] tracking-[0.2em] uppercase"> • Kedarnath • Badrinath •
+                        Chopta</p>
+                </div>
+            </footer>
+    </div>
+
+    <script>
+        function startOpeningSequence() {
+            const tl = gsap.timeline();
+            tl.to("#loader-bar", { width: "100%", duration: 1, ease: "power2.inOut" });
+            tl.to("#loader", { yPercent: -100, duration: 1.2, ease: "expo.inOut", delay: 0.2 });
+            tl.set("#main-content", { opacity: 1 });
+            tl.from("#navbar", { y: -120, opacity: 0, duration: 1.2, ease: "power4.out" }, "-=0.6");
+            tl.from("#hero-title", { y: 100, opacity: 0, duration: 1.5, skewY: 7, ease: "power4.out" }, "-=1.1");
+            tl.from("#hero-p, #hero-btns", { y: 40, opacity: 0, duration: 1.2 }, "-=1.3");
+        }
+
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.transform = `translate(${e.clientX - 12}px, ${e.clientY - 12}px)`;
+        });
+
+        function scrollGallery(direction) {
+            const carousel = document.getElementById('gallery-carousel');
+            const scrollAmount = carousel.offsetWidth * 0.7;
+            if (direction === 'next') carousel.scrollLeft += scrollAmount;
+            else carousel.scrollLeft -= scrollAmount;
+        }
+
+        const mountainContent = [
+            { img: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?q=80&w=1200', quote: "In the silence of the Himalayas, the soul finds its sanctuary." },
+            { img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200', quote: "Witness the morning Aarti where the earth meets the heavens." },
+            { img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200', quote: "The mountains are calling, and your spiritual journey awaits." },
+            { img: 'https://images.unsplash.com/photo-1544735038-179ad53d144f?q=80&w=1200', quote: "Find peace beyond the clouds in the heart of Uttarakhand." }
+        ];
+
+        function initContactFader() {
+            const container = document.getElementById('contact-content-fader');
+            if (!container) return;
+            mountainContent.forEach((item, idx) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `contact-fader-item ${idx === 0 ? 'active' : ''}`;
+                itemDiv.innerHTML = `<div class="contact-fader-bg" style="background-image: url(${item.img})"></div><div class="contact-fader-overlay"></div><p class="contact-fader-text">"${item.quote}"</p>`;
+                container.appendChild(itemDiv);
+            });
+            let currentIdx = 0;
+            const items = container.getElementsByClassName('contact-fader-item');
+            setInterval(() => {
+                items[currentIdx].classList.remove('active');
+                currentIdx = (currentIdx + 1) % items.length;
+                items[currentIdx].classList.add('active');
+            }, 10000);
+        }
+
+        let scene, camera, renderer, mountains, particlesMesh;
+        function init3D() {
+            try {
+                const container = document.getElementById('canvas-container');
+                if (!container) throw new Error('Canvas container not found');
+
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                container.appendChild(renderer.domElement);
+                const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1B4332, 1);
+                scene.add(hemiLight);
+                const mountainGeo = new THREE.PlaneGeometry(160, 160, 60, 60);
+                const pos = mountainGeo.attributes.position;
+                for (let i = 0; i < pos.count; i++) {
+                    let x = pos.getX(i), y = pos.getY(i);
+                    pos.setZ(i, Math.sin(x / 10) * Math.cos(y / 10) * 8 + Math.sin(x / 5) * 3);
+                }
+                mountainGeo.computeVertexNormals();
+                mountains = new THREE.Mesh(mountainGeo, new THREE.MeshPhongMaterial({ color: 0x1B4332, wireframe: true, transparent: true, opacity: 0.05 }));
+                mountains.rotation.x = -Math.PI / 2.3;
+                mountains.position.y = -20;
+                scene.add(mountains);
+
+                // ENHANCED 3D SNOWFALL
+                const pGeo = new THREE.BufferGeometry();
+                const pCount = 6000;
+                const pArr = new Float32Array(pCount * 3);
+                for (let i = 0; i < pCount * 3; i++) {
+                    pArr[i] = (Math.random() - 0.5) * 250;
+                }
+                pGeo.setAttribute('position', new THREE.BufferAttribute(pArr, 3));
+                particlesMesh = new THREE.Points(pGeo, new THREE.PointsMaterial({
+                    size: 0.25,
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.7,
+                    blending: THREE.AdditiveBlending
+                }));
+                scene.add(particlesMesh);
+
+                camera.position.z = 60;
+                function animate() {
+                    requestAnimationFrame(animate);
+                    if (mountains) mountains.rotation.z += 0.0003;
+                    if (particlesMesh) {
+                        const positions = particlesMesh.geometry.attributes.position.array;
+                        for (let i = 1; i < positions.length; i += 3) {
+                            positions[i] -= 0.08;
+                            if (positions[i] < -125) positions[i] = 125;
+                        }
+                        particlesMesh.geometry.attributes.position.needsUpdate = true;
+                        particlesMesh.rotation.y += 0.0005;
+                    }
+                    renderer.render(scene, camera);
+                }
+                animate();
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!camera || !mountains) return;
+                    const mouseX = (e.clientX / window.innerWidth) - 0.5, mouseY = (e.clientY / window.innerHeight) - 0.5;
+                    gsap.to(camera.position, { x: mouseX * 15, y: -mouseY * 15, duration: 2.5 });
+                    gsap.to(mountains.rotation, { x: -Math.PI / 2.3 + mouseY * 0.1, duration: 2 });
+                });
+            } catch (e) {
+                console.error('3D Init Failed:', e);
+            } finally {
+                setTimeout(startOpeningSequence, 600);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init3D();
+            initContactFader();
+        });
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        let isMenuOpen = false;
+        menuToggle.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            mobileMenu.classList.toggle('active');
+            if (isMenuOpen) {
+                menuIcon.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+                document.body.style.overflow = 'hidden';
+            } else {
+                menuIcon.setAttribute('d', 'M4 6h16M4 12h16m-7 6h7');
+                document.body.style.overflow = '';
+            }
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                isMenuOpen = false;
+                mobileMenu.classList.remove('active');
+                menuIcon.setAttribute('d', 'M4 6h16M4 12h16m-7 6h7');
+                document.body.style.overflow = '';
+            });
+        });
+
+        function sendToWhatsApp() {
+            const name = document.getElementById('contact-name').value;
+            const phone = document.getElementById('contact-phone').value;
+            const message = document.getElementById('contact-message').value;
+
+            if (!name || !phone) {
+                alert("Please fill in your name and phone number.");
+                return;
+            }
+
+            const whatsappNumber = "919205785056";
+            const text = `*New Inquiry - Rudra Travels*%0A%0A*Name:* ${encodeURIComponent(name)}%0A*Phone:* ${encodeURIComponent(phone)}%0A*Message:* ${encodeURIComponent(message)}`;
+
+            const url = `https://wa.me/${whatsappNumber}?text=${text}`;
+            window.open(url, '_blank');
+        }
+
+        window.addEventListener('scroll', () => {
+            const floatingSocial = document.getElementById('floating-social');
+            if (window.scrollY > window.innerHeight * 0.5) {
+                floatingSocial.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+                floatingSocial.classList.add('opacity-100', 'translate-y-0');
+            } else {
+                floatingSocial.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+                floatingSocial.classList.remove('opacity-100', 'translate-y-0');
+            }
+        });
+    </script>
+    <!-- Floating Social Buttons -->
+    <div id="floating-social"
+        class="fixed right-6 bottom-10 z-[100] flex flex-col gap-4 opacity-0 translate-y-10 pointer-events-none transition-all duration-500">
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+            class="w-14 h-14 bg-forest-green text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all group relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 15l-6-6-6 6" />
+            </svg>
+            <span
+                class="absolute right-full mr-4 bg-black text-white text-[10px] py-1 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none uppercase tracking-widest font-bold">Back
+                to Top</span>
+        </button>
+        <a href="https://wa.me/919205785056" target="_blank"
+            class="w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all group relative whatsapp-pulse">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+            </svg>
+            <span
+                class="absolute right-full mr-4 bg-black text-white text-[10px] py-1 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none uppercase tracking-widest font-bold">WhatsApp
+                Us</span>
+        </a>
+        <a href="https://www.instagram.com/tungnathvalley_ecocamps?igsh=MXMyejEzcndiZm80dw==" target="_blank"
+            class="w-14 h-14 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all group relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.332 3.608 1.308.975.975 1.247 2.242 1.308 3.607.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.332 2.633-1.308 3.608-.975.975-2.242 1.247-3.607 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.332-3.608-1.308-.975-.975-1.247-2.242-1.308-3.607-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.062-1.366.332-2.633 1.308-3.608.975-.975 2.242-1.247 3.607-1.308 1.266-.058 1.646-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-1.277.057-2.148.258-2.911.553-.788.306-1.457.715-2.122 1.379-.664.665-1.073 1.334-1.379 2.122-.296.763-.497 1.634-.553 2.911-.058 1.28-.072 1.688-.072 4.947s.014 3.667.072 4.947c.057 1.277.258 2.148.553 2.911.306.788.715 1.457 1.379 2.122.665.664 1.334 1.073 2.122 1.379.763.296 1.634.497 2.911.553 1.28.058 1.688.072 4.947.072s3.667-.014 4.947-.072c1.277-.057 2.148-.258 2.911-.553.788-.306 1.457-.715 2.122-1.379.664-.665 1.073-1.334 1.379-2.122.296-.763.497-1.634.553-2.911.058-1.28.072-1.688.072-4.947s-.014-3.667-.072-4.947c-.057-1.277-.258-2.148-.553-2.911-.306-.788-.715-1.457-1.379-2.122-.665-.664-1.334-1.073-2.122-1.379-.763-.296-1.634-.497-2.911-.553-1.28-.058-1.688-.072-4.947-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+            </svg>
+            <span
+                class="absolute right-full mr-4 bg-black text-white text-[10px] py-1 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none uppercase tracking-widest font-bold">Follow
+                Us</span>
+        </a>
+    </div>
+</body>
+
+</html>
